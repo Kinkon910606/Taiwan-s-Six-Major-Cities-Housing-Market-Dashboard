@@ -4,7 +4,7 @@ streamlit run main.py --server.fileWatcherType poll
 """
 import streamlit as st
 import time
-import pymssql
+# import pymssql
 from datetime import datetime, timedelta
 
 # from sqlalchemy import create_engine

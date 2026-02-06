@@ -6,9 +6,6 @@ today = datetime.now()
 from folder.SQL_query import *
 from folder.visualization import *
 import openai
-from streamlit_elements import elements, mui
-import streamlit.components.v1 as components
-import math 
 
 st.logo(r'https://bank.sinopac.com/sinopacbt/webevents/2005_life/images/logo@3x.png', size='large')
 
@@ -36,8 +33,8 @@ def load_data(): #讀取資料
     #     r".\sql\agent_data.sql")
     # df2 = select_data(st.session_state.db_connection,
     #     r".\sql\saledays_month.sql")
-    df = pd.read_csv(r'.\data\agent_data.csv', encoding='utf-8')
-    df2 = pd.read_csv(r'.\data\saledays_month.csv', encoding='utf-8')
+    df = pd.read_csv(r'./data/agent_data.csv', encoding='utf-8')
+    df2 = pd.read_csv(r'./data/saledays_month.csv', encoding='utf-8')
     return df, df2
 
 ################################################################################
@@ -111,7 +108,7 @@ def main():
             
         
         # bc1,bc2 = st.columns(2,vertical_alignment='bottom')
-        st.subheader(f'{saleday['年月'].max().year}年{saleday['年月'].max().month}月流動天期樹狀圖 :bar_chart: ',divider=True,anchor=False)
+        st.subheader(f'{saleday["年月"].max().year}年{saleday["年月"].max().month}月流動天期樹狀圖 :bar_chart: ',divider=True,anchor=False)
         # with bc2:
         #     title, col1, col2, col3 = st.columns([8,1,1,1],vertical_alignment='bottom')
 

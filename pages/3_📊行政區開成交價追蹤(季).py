@@ -6,10 +6,6 @@ today = datetime.now()
 from folder.SQL_query import *
 from folder.visualization import *
 import openai
-from streamlit_elements import elements, mui
-import streamlit.components.v1 as components
-import math 
-import  numpy as np
 
 from pathlib import Path
 
@@ -21,7 +17,7 @@ def read_template(path: str, encoding: str = "utf-8") -> str:
 
 st.logo(r'https://bank.sinopac.com/sinopacbt/webevents/2005_life/images/logo@3x.png', size='large')
 # API 設定
-openai.api_key = ""  # 替換成您的 API Key
+openai.api_key = "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"  # 替換成您的 API Key
 openai.api_base = "https://api.groq.com/openai/v1"
 
 st.set_page_config(
