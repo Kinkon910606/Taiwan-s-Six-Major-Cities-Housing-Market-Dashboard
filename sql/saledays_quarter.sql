@@ -1,17 +1,17 @@
-DECLARE @SQL NVARCHAR(MAX)
+ï»¿DECLARE @SQL NVARCHAR(MAX)
 DECLARE @UnionSQL NVARCHAR(MAX) = ''
 
--- ¦Û°Ê­pºâ·í«eªº«e¤@©u©M«e«e¤@©u
+-- è‡ªå‹•è¨ˆç®—ç•¶å‰çš„å‰ä¸€å­£å’Œå‰å‰ä¸€å­£
 DECLARE @CurrentYear INT = YEAR(GETDATE())
 DECLARE @CurrentMonth INT = MONTH(GETDATE())
-DECLARE @CurrentQuarter INT = CEILING(@CurrentMonth / 3.0)  -- ­pºâ·í«e©u«× (1-4)
+DECLARE @CurrentQuarter INT = CEILING(@CurrentMonth / 3.0)  -- è¨ˆç®—ç•¶å‰å­£åº¦ (1-4)
 
-DECLARE @Season0Year INT  -- «e«e©uªº¦~¥÷
-DECLARE @Season0Quarter INT  -- «e«e©uªº©u«×
-DECLARE @Season1Year INT  -- «e¤@©uªº¦~¥÷
-DECLARE @Season1Quarter INT  -- «e¤@©uªº©u«×
+DECLARE @Season0Year INT  -- å‰å‰å­£çš„å¹´ä»½
+DECLARE @Season0Quarter INT  -- å‰å‰å­£çš„å­£åº¦
+DECLARE @Season1Year INT  -- å‰ä¸€å­£çš„å¹´ä»½
+DECLARE @Season1Quarter INT  -- å‰ä¸€å­£çš„å­£åº¦
 
--- ­pºâ«e¤@©u (Season1)
+-- è¨ˆç®—å‰ä¸€å­£ (Season1)
 IF @CurrentQuarter = 1
 BEGIN
     SET @Season1Year = @CurrentYear - 1
@@ -23,7 +23,7 @@ BEGIN
     SET @Season1Quarter = @CurrentQuarter - 1
 END
 
--- ­pºâ«e«e©u (Season0)
+-- è¨ˆç®—å‰å‰å­£ (Season0)
 IF @Season1Quarter = 1
 BEGIN
     SET @Season0Year = @Season1Year - 1
@@ -35,21 +35,21 @@ BEGIN
     SET @Season0Quarter = @Season1Quarter - 1
 END
 
--- ²Õ¦X¦¨©u«×¦r¦ê
+-- çµ„åˆæˆå­£åº¦å­—ä¸²
 DECLARE @Season0 NVARCHAR(10) = CAST(@Season0Year AS NVARCHAR) + 'Q' + CAST(@Season0Quarter AS NVARCHAR)
 DECLARE @Season1 NVARCHAR(10) = CAST(@Season1Year AS NVARCHAR) + 'Q' + CAST(@Season1Quarter AS NVARCHAR)
 
--- °ÊºA²£¥Í©Ò¦³ A_W ¶}ÀYªº¸ê®Æªí UNION ALL
+-- å‹•æ…‹ç”¢ç”Ÿæ‰€æœ‰ A_W é–‹é ­çš„è³‡æ–™è¡¨ UNION ALL
 SELECT @UnionSQL = @UnionSQL + 
     'SELECT * FROM ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) + ' UNION ALL '
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_NAME LIKE 'A_W%'
 ORDER BY TABLE_NAME;
 
--- ²¾°£³Ì«á¤@­Ó UNION ALL
+-- ç§»é™¤æœ€å¾Œä¸€å€‹ UNION ALL
 SET @UnionSQL = LEFT(@UnionSQL, LEN(@UnionSQL) - 10);
 
--- «Ø¥ß°ÊºASQL
+-- å»ºç«‹å‹•æ…‹SQL
 SET @SQL = N'
 WITH cte AS (
     SELECT 
@@ -59,33 +59,33 @@ WITH cte AS (
             WHEN RIGHT(ym, 2) <= ''09'' THEN LEFT(ym, 4) + ''Q3''
             WHEN RIGHT(ym, 2) <= ''12'' THEN LEFT(ym, 4) + ''Q4''
             ELSE ''impossible''
-        END AS ¥æ©ö©u,
+        END AS äº¤æ˜“å­£,
         *
     FROM (' + @UnionSQL + N') AS all_tables
     WHERE 
         (
-            (city = ''¥x¥_¥«'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
-            (city = ''·s¥_¥«'' AND dist NOT IN (''¸U¨½°Ï'',''ª÷¤s°Ï'',''°^¼d°Ï'',''Âù·Ë°Ï'',''·çªÚ°Ï'',''¥­·Ë°Ï'',''¥ÛŞä°Ï'',''©WªL°Ï'',''¯Q¨Ó°Ï'',''¤TªÛ°Ï'',''¥Ûªù°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''®ç¶é¥«'' AND dist NOT IN (''·s«Î°Ï'',''Æ[­µ°Ï'',''¤j·Ë°Ï'',''´_¿³°Ï'',''Às¼æ°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''¥x¤¤¥«'' AND dist NOT IN (''¤j¥Ò°Ï'',''¤j¦w°Ï'',''¥~®H°Ï'',''ªF¶Õ°Ï'',''©M¥­°Ï'',''²M¤ô°Ï'',''¥Û©£°Ï'',''·sªÀ°Ï'',''±ï´Ï°Ï'',''Ãú®p°Ï'',''¨F³À°Ï'',''¤j¨{°Ï'',''¦Z¨½°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''¥x«n¥«'' AND dist NOT IN (''¤CªÑ°Ï'',''¤UÀç°Ï'',''¤»¥Ò°Ï'',''¥ªÂí°Ï'',''¥É¤«°Ï'',''¥Õªe°Ï'',''¦è´ä°Ï'',''¦w©w°Ï'',''©x¥Ğ°Ï'',''ªF¤s°Ï'',''«n¤Æ°Ï'',''«á¾À°Ï'',''¬hÀç°Ï'',''³Â¨§°Ï'',
-                                            ''±N­x°Ï'',''·£¦è°Ï'',''Às±T°Ï'',''¾Ç¥Ò°Ï'',''Ãö¼q°Ï'',''ÆQ¤ô°Ï'',''¤j¤º°Ï'',''¤s¤W°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''°ª¶¯¥«'' AND dist NOT IN (''³¾ªQ°Ï'',''ºX¬z°Ï'',''¤j¼d°Ï'',''¤jªÀ°Ï'',''ªL¶é°Ï'',''¸ô¦Ë°Ï'',''¿P±_°Ï'',''±ê©x°Ï'',''¤j¾ğ°Ï'',''¤»Àt°Ï'',''¤ºªù°Ï'',''¥Ğ¼d°Ï'',''¥Ã¦w°Ï'',''¥Ò¥P°Ï'',''§üªL°Ï'',
-                                            ''ªü½¬°Ï'',''¬ü¿@°Ï'',''®ç·½°Ï'',''±ê©x°Ï'',''­ZªL°Ï'',''­X©w°Ï'',''­XÛ_°Ï'',''´ò¤º°Ï'',''ºX¤s°Ï'',''À±ªû°Ï'',''¯Çº¿®L°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300)
+            (city = ''å°åŒ—å¸‚'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
+            (city = ''æ–°åŒ—å¸‚'' AND dist NOT IN (''è¬é‡Œå€'',''é‡‘å±±å€'',''è²¢å¯®å€'',''é›™æºªå€'',''ç‘èŠ³å€'',''å¹³æºªå€'',''çŸ³ç¢‡å€'',''åªæ—å€'',''çƒä¾†å€'',''ä¸‰èŠå€'',''çŸ³é–€å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''æ¡ƒåœ’å¸‚'' AND dist NOT IN (''æ–°å±‹å€'',''è§€éŸ³å€'',''å¤§æºªå€'',''å¾©èˆˆå€'',''é¾æ½­å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''å°ä¸­å¸‚'' AND dist NOT IN (''å¤§ç”²å€'',''å¤§å®‰å€'',''å¤–åŸ”å€'',''æ±å‹¢å€'',''å’Œå¹³å€'',''æ¸…æ°´å€'',''çŸ³å²¡å€'',''æ–°ç¤¾å€'',''æ¢§æ£²å€'',''éœ§å³°å€'',''æ²™é¹¿å€'',''å¤§è‚šå€'',''åé‡Œå€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''å°å—å¸‚'' AND dist NOT IN (''ä¸ƒè‚¡å€'',''ä¸‹ç‡Ÿå€'',''å…­ç”²å€'',''å·¦é®å€'',''ç‰äº•å€'',''ç™½æ²³å€'',''è¥¿æ¸¯å€'',''å®‰å®šå€'',''å®˜ç”°å€'',''æ±å±±å€'',''å—åŒ–å€'',''å¾Œå£å€'',''æŸ³ç‡Ÿå€'',''éº»è±†å€'',
+                                            ''å°‡è»å€'',''æ¥ è¥¿å€'',''é¾å´å€'',''å­¸ç”²å€'',''é—œå»Ÿå€'',''é¹½æ°´å€'',''å¤§å…§å€'',''å±±ä¸Šå€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''é«˜é›„å¸‚'' AND dist NOT IN (''é³¥æ¾å€'',''æ——æ´¥å€'',''å¤§å¯®å€'',''å¤§ç¤¾å€'',''æ—åœ’å€'',''è·¯ç«¹å€'',''ç‡•å·¢å€'',''æ¢“å®˜å€'',''å¤§æ¨¹å€'',''å…­é¾œå€'',''å…§é–€å€'',''ç”°å¯®å€'',''æ°¸å®‰å€'',''ç”²ä»™å€'',''æ‰æ—å€'',
+                                            ''é˜¿è“®å€'',''ç¾æ¿ƒå€'',''æ¡ƒæºå€'',''æ¢“å®˜å€'',''èŒ‚æ—å€'',''èŒ„å®šå€'',''èŒ„è£å€'',''æ¹–å…§å€'',''æ——å±±å€'',''å½Œé™€å€'',''ç´ç‘ªå¤å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300)
         )
         AND saledays <= 270
         AND TRY_CAST(low AS FLOAT) >= 2
-        AND type IN (''¤j¼Ó'',''¦í¦v¤j¼Ó'',''®M©Ğ'',''µØ·H'',''¹q±è¤j·H'',''¹q±è¤j¼Ó'',''¹q±è¦í¦v'')
+        AND type IN (''å¤§æ¨“'',''ä½å®…å¤§æ¨“'',''å¥—æˆ¿'',''è¯å»ˆ'',''é›»æ¢¯å¤§å»ˆ'',''é›»æ¢¯å¤§æ¨“'',''é›»æ¢¯ä½å®…'')
 )
 SELECT
-    REPLACE(city, ''¥x'', ''»O'') AS ¿¤¥«,
-    dist AS ¶mÂí¥«°Ï,
-    ROUND(AVG(CASE WHEN ¥æ©ö©u = @Season0 THEN saledays END), 0) AS [«e©u¾P°â¤Ñ´Á],
-    ROUND(AVG(CASE WHEN ¥æ©ö©u = @Season1 THEN saledays END), 0) AS [·í©u¾P°â¤Ñ´Á],
-    ROUND( ( AVG(CASE WHEN ¥æ©ö©u = @Season1 THEN saledays END) - AVG(CASE WHEN ¥æ©ö©u = @Season0 THEN saledays END) )/
-            NULLIF(AVG(CASE WHEN ¥æ©ö©u = @Season0 THEN saledays END), 0) * 100 ,2) AS [¼W¥[²v(%)] 
+    REPLACE(city, ''å°'', ''è‡º'') AS ç¸£å¸‚,
+    dist AS é„‰é®å¸‚å€,
+    ROUND(AVG(CASE WHEN äº¤æ˜“å­£ = @Season0 THEN saledays END), 0) AS [å‰å­£éŠ·å”®å¤©æœŸ],
+    ROUND(AVG(CASE WHEN äº¤æ˜“å­£ = @Season1 THEN saledays END), 0) AS [ç•¶å­£éŠ·å”®å¤©æœŸ],
+    ROUND( ( AVG(CASE WHEN äº¤æ˜“å­£ = @Season1 THEN saledays END) - AVG(CASE WHEN äº¤æ˜“å­£ = @Season0 THEN saledays END) )/
+            NULLIF(AVG(CASE WHEN äº¤æ˜“å­£ = @Season0 THEN saledays END), 0) * 100 ,2) AS [å¢åŠ ç‡(%)] 
 FROM cte
-WHERE ¥æ©ö©u IN (@Season0, @Season1)
+WHERE äº¤æ˜“å­£ IN (@Season0, @Season1)
 GROUP BY city, dist
 ORDER BY city, dist'
 

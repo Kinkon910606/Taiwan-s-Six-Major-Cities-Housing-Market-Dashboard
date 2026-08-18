@@ -5,13 +5,9 @@ from datetime import datetime,timedelta
 today = datetime.now()
 from folder.SQL_query import *
 from folder.visualization import *
-import openai
 
 st.logo(r'https://bank.sinopac.com/sinopacbt/webevents/2005_life/images/logo@3x.png', size='large')
 
-# API 設定
-openai.api_key = "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"  # 替換成您的 API Key
-openai.api_base = "https://api.groq.com/openai/v1"
 
 st.set_page_config(
     page_title="永豐銀行-鑑估中心儀表板",
@@ -28,11 +24,13 @@ plt.rcParams['axes.unicode_minus'] = False
 ################################################################################
 ###  讀取資料 ###
 @st.cache_data
-def load_data(): #讀取資料
+def load_data(): #- 讀取資料
+    #- 正式版：直接串接資料庫，讀取資料
     # df = select_data(st.session_state.db_connection, 
     #     r".\sql\agent_data.sql")
     # df2 = select_data(st.session_state.db_connection,
     #     r".\sql\saledays_month.sql")
+    #- 測試版：讀取csv檔案
     df = pd.read_csv(r'./data/agent_data.csv', encoding='utf-8')
     df2 = pd.read_csv(r'./data/saledays_month.csv', encoding='utf-8')
     return df, df2
@@ -136,12 +134,6 @@ try:
             st.toast("登出成功")
             st.session_state.login_status = False
             st.session_state.show_form = True
-            # st.session_state.data_loaded_2 = False
-            # st.session_state.data_loaded_3 = False
-            # st.session_state.data_loaded_6 = False
-            # st.session_state.data_dist = None
-            # st.session_state.data, st.session_state.data2 = None, None
-            # st.session_state.data_2, st.session_state.saleday_2  = None, None
             time.sleep(2)
             st.switch_page("main.py")
 

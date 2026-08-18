@@ -838,8 +838,7 @@ def monitorTreemap(data, column , path = ['縣市', '鄉鎮市區']):
     # 確保城市和區域名稱為字符串類型
     data[path] = data[path].astype(str)
     # data['鄉  鎮市區'] = data['鄉鎮市區'].astype(str)
-    data[column] = round(data[column])
-
+    data[column] = pd.to_numeric(data[column], errors='coerce').astype(float)
     # 處理零值
     data.loc[data[column] == 0, column] = 0.0001
     

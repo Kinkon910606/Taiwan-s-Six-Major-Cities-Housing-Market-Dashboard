@@ -1,25 +1,25 @@
-DECLARE @sql NVARCHAR(MAX) = '';
+ï»¿DECLARE @sql NVARCHAR(MAX) = '';
 DECLARE @currentYM INT = CAST(FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyyMM') AS INT);
 
--- °ÊºA²£¥Í UNION ALL »y¥y
+-- å‹•æ…‹ç”¢ç”Ÿ UNION ALL èªžå¥
 SELECT @sql = @sql + 
     'SELECT * FROM ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) + ' UNION ALL '
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_NAME LIKE 'A_W%'
 ORDER BY TABLE_NAME;
 
--- ²¾°£³Ì«á¤@­Ó UNION ALL
+-- ç§»é™¤æœ€å¾Œä¸€å€‹ UNION ALL
 SET @sql = LEFT(@sql, LEN(@sql) - 10);
 
--- ²Õ¦X§¹¾ãªº¬d¸ß
+-- çµ„åˆå®Œæ•´çš„æŸ¥è©¢
 SET @sql = '
 WITH cte AS (
     SELECT
-        ym AS [¦~¤ë],
-        city AS [¿¤¥«],
-        dist AS [¦æ¬F°Ï],
-        ROUND(AVG(saledays), 0) AS [·í¤ë¾P°â¤Ñ´Á],
-        LAG(ROUND(AVG(saledays), 0)) OVER (PARTITION BY city, dist ORDER BY ym) AS [«e¤ë¾P°â¤Ñ´Á],
+        ym AS [å¹´æœˆ],
+        city AS [ç¸£å¸‚],
+        dist AS [è¡Œæ”¿å€],
+        ROUND(AVG(saledays), 0) AS [ç•¶æœˆéŠ·å”®å¤©æœŸ],
+        LAG(ROUND(AVG(saledays), 0)) OVER (PARTITION BY city, dist ORDER BY ym) AS [å‰æœˆéŠ·å”®å¤©æœŸ],
         CASE
             WHEN LAG(ROUND(AVG(saledays), 2)) OVER (PARTITION BY city, dist ORDER BY ym) IS NULL
                 OR LAG(ROUND(AVG(saledays), 2)) OVER (PARTITION BY city, dist ORDER BY ym) = 0
@@ -27,28 +27,28 @@ WITH cte AS (
             ELSE ROUND(
                 (ROUND(AVG(saledays), 2) - LAG(ROUND(AVG(saledays), 2)) OVER (PARTITION BY city, dist ORDER BY ym))
                 / LAG(ROUND(AVG(saledays), 2)) OVER (PARTITION BY city, dist ORDER BY ym)*100, 2)
-        END AS [¼W¥[²v(%)]
+        END AS [å¢žåŠ çŽ‡(%)]
     FROM (' + @sql + ') allagent
     WHERE
         (
-            (city = ''¥x¥_¥«'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
-            (city = ''·s¦Ë¿¤'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
-            (city = ''·s¥_¥«'' AND dist NOT IN (''¸U¨½°Ï'',''ª÷¤s°Ï'',''°^¼d°Ï'',''Âù·Ë°Ï'',''·çªÚ°Ï'',''¥­·Ë°Ï'',''¥ÛÞä°Ï'',''©WªL°Ï'',''¯Q¨Ó°Ï'',''¤TªÛ°Ï'',''¥Ûªù°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''®ç¶é¥«'' AND dist NOT IN (''·s«Î°Ï'',''Æ[­µ°Ï'',''¤j·Ë°Ï'',''´_¿³°Ï'',''Às¼æ°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''¥x¤¤¥«'' AND dist NOT IN (''¤j¥Ò°Ï'',''¤j¦w°Ï'',''¥~®H°Ï'',''ªF¶Õ°Ï'',''©M¥­°Ï'',''²M¤ô°Ï'',''¥Û©£°Ï'',''·sªÀ°Ï'',''±ï´Ï°Ï'',''Ãú®p°Ï'',''¨F³À°Ï'',''¤j¨{°Ï'',''¦Z¨½°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''¥x«n¥«'' AND dist NOT IN (''¤CªÑ°Ï'',''¤UÀç°Ï'',''¤»¥Ò°Ï'',''¥ªÂí°Ï'',''¥É¤«°Ï'',''¥Õªe°Ï'',''¦è´ä°Ï'',''¦w©w°Ï'',''©x¥Ð°Ï'',''ªF¤s°Ï'',''«n¤Æ°Ï'',''«á¾À°Ï'',''¬hÀç°Ï'',''³Â¨§°Ï'',
-                                            ''±N­x°Ï'',''·£¦è°Ï'',''Às±T°Ï'',''¾Ç¥Ò°Ï'',''Ãö¼q°Ï'',''ÆQ¤ô°Ï'',''¤j¤º°Ï'',''¤s¤W°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
-            (city = ''°ª¶¯¥«'' AND dist NOT IN (''³¾ªQ°Ï'',''ºX¬z°Ï'',''¤j¼d°Ï'',''¤jªÀ°Ï'',''ªL¶é°Ï'',''¸ô¦Ë°Ï'',''¿P±_°Ï'',''±ê©x°Ï'',''¤j¾ð°Ï'',''¤»Àt°Ï'',''¤ºªù°Ï'',''¥Ð¼d°Ï'',''¥Ã¦w°Ï'',''¥Ò¥P°Ï'',''§üªL°Ï'',
-                                            ''ªü½¬°Ï'',''¬ü¿@°Ï'',''®ç·½°Ï'',''±ê©x°Ï'',''­ZªL°Ï'',''­X©w°Ï'',''­XÛ_°Ï'',''´ò¤º°Ï'',''ºX¤s°Ï'',''À±ªû°Ï'',''¯Çº¿®L°Ï'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300)
+            (city = ''å°åŒ—å¸‚'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
+            (city = ''æ–°ç«¹ç¸£'' AND size BETWEEN 5 AND 400 AND unit BETWEEN 5 AND 400) OR
+            (city = ''æ–°åŒ—å¸‚'' AND dist NOT IN (''è¬é‡Œå€'',''é‡‘å±±å€'',''è²¢å¯®å€'',''é›™æºªå€'',''ç‘žèŠ³å€'',''å¹³æºªå€'',''çŸ³ç¢‡å€'',''åªæž—å€'',''çƒä¾†å€'',''ä¸‰èŠå€'',''çŸ³é–€å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''æ¡ƒåœ’å¸‚'' AND dist NOT IN (''æ–°å±‹å€'',''è§€éŸ³å€'',''å¤§æºªå€'',''å¾©èˆˆå€'',''é¾æ½­å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''å°ä¸­å¸‚'' AND dist NOT IN (''å¤§ç”²å€'',''å¤§å®‰å€'',''å¤–åŸ”å€'',''æ±å‹¢å€'',''å’Œå¹³å€'',''æ¸…æ°´å€'',''çŸ³å²¡å€'',''æ–°ç¤¾å€'',''æ¢§æ£²å€'',''éœ§å³°å€'',''æ²™é¹¿å€'',''å¤§è‚šå€'',''åŽé‡Œå€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''å°å—å¸‚'' AND dist NOT IN (''ä¸ƒè‚¡å€'',''ä¸‹ç‡Ÿå€'',''å…­ç”²å€'',''å·¦éŽ®å€'',''çŽ‰äº•å€'',''ç™½æ²³å€'',''è¥¿æ¸¯å€'',''å®‰å®šå€'',''å®˜ç”°å€'',''æ±å±±å€'',''å—åŒ–å€'',''å¾Œå£å€'',''æŸ³ç‡Ÿå€'',''éº»è±†å€'',
+                                            ''å°‡è»å€'',''æ¥ è¥¿å€'',''é¾å´Žå€'',''å­¸ç”²å€'',''é—œå»Ÿå€'',''é¹½æ°´å€'',''å¤§å…§å€'',''å±±ä¸Šå€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300) OR
+            (city = ''é«˜é›„å¸‚'' AND dist NOT IN (''é³¥æ¾å€'',''æ——æ´¥å€'',''å¤§å¯®å€'',''å¤§ç¤¾å€'',''æž—åœ’å€'',''è·¯ç«¹å€'',''ç‡•å·¢å€'',''æ¢“å®˜å€'',''å¤§æ¨¹å€'',''å…­é¾œå€'',''å…§é–€å€'',''ç”°å¯®å€'',''æ°¸å®‰å€'',''ç”²ä»™å€'',''æ‰æž—å€'',
+                                            ''é˜¿è“®å€'',''ç¾Žæ¿ƒå€'',''æ¡ƒæºå€'',''æ¢“å®˜å€'',''èŒ‚æž—å€'',''èŒ„å®šå€'',''èŒ„è£å€'',''æ¹–å…§å€'',''æ——å±±å€'',''å½Œé™€å€'',''ç´ç‘ªå¤å€'') AND size BETWEEN 5 AND 300 AND unit BETWEEN 5 AND 300)
         )
         AND saledays <= 270
         AND TRY_CAST(low AS FLOAT) >= 2
-        AND type IN (''¤j¼Ó'',''¦í¦v¤j¼Ó'',''®M©Ð'',''µØ·H'',''¹q±è¤j·H'',''¹q±è¤j¼Ó'',''¹q±è¦í¦v'')
+        AND type IN (''å¤§æ¨“'',''ä½å®…å¤§æ¨“'',''å¥—æˆ¿'',''è¯å»ˆ'',''é›»æ¢¯å¤§å»ˆ'',''é›»æ¢¯å¤§æ¨“'',''é›»æ¢¯ä½å®…'')
     GROUP BY ym, city, dist
 )
 SELECT * FROM cte
-WHERE ¦~¤ë = @currentYM
-ORDER BY ¿¤¥«, ¦æ¬F°Ï, ¦~¤ë';
+WHERE å¹´æœˆ = @currentYM
+ORDER BY ç¸£å¸‚, è¡Œæ”¿å€, å¹´æœˆ';
 
--- °õ¦æ°ÊºA SQL (¨Ï¥Î°Ñ¼Æ¤Æ¬d¸ß)
+-- åŸ·è¡Œå‹•æ…‹ SQL (ä½¿ç”¨åƒæ•¸åŒ–æŸ¥è©¢)
 EXEC sp_executesql @sql, N'@currentYM INT', @currentYM;

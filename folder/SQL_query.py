@@ -2,7 +2,7 @@ import pymssql
 import pandas as pd
 
 """
-這裡的SQL語法都會直接接到\\10.11.6.12\r41200\M07927(亭妤)\LibreChat\LibreChat代理模型\code底下的sql檔案
+這裡的SQL語法都會使用到 \\10.11.6.12\r41200\M07927(亭妤)\LibreChat\LibreChat代理模型\code 底下的sql檔案
 - \\10.11.6.12\r41200\M07927(亭妤)\LibreChat\LibreChat代理模型\code\縣市(季).sql
 - \\10.11.6.12\r41200\M07927(亭妤)\Streamlit儀錶板\folder\saledays.sql
 """

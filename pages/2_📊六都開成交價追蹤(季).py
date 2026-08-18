@@ -5,13 +5,10 @@ from datetime import datetime,timedelta
 today = datetime.now()
 from folder.SQL_query import *
 from folder.visualization import *
-import openai
+import os
+
 
 st.logo(r'https://bank.sinopac.com/sinopacbt/webevents/2005_life/images/logo@3x.png', size='large')
-
-# API 設定
-openai.api_key = "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"  # 替換成您的 API Key
-openai.api_base = "https://api.groq.com/openai/v1"
 
 st.set_page_config(
     page_title="永豐銀行-鑑估中心儀表板",
@@ -25,43 +22,17 @@ st.set_page_config(
 plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
 plt.rcParams['axes.unicode_minus'] = False 
 
-# 添加 header 背景圖片
-# st.markdown("""
-# <div style="
-#     background-image: url('https://st2.depositphotos.com/4327059/9693/v/950/depositphotos_96937992-stock-illustration-taipei-detailed-skyline.jpg');
-#     background-size: cover;
-#     background-position: center ;
-#     background-repeat: no-repeat;
-#     opacity: 0.6;
-#     height: 300px;
-#     width: 100%;
-#     position: relative;
-#     margin-bottom: 10px;
-#     border-radius: 10px;
-#     display: flex;
-#     align-items: center;
-#     justify-content: center;
-#     background-color: rgba(0,0,0,0.1);
-#     ">
-#     <h1 style="
-#         color: white;
-#         text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-#         font-size: 3rem;
-#         margin: 0;
-#         font-weight: bold;
-#         text-align: center;
-#         ">六都監控報告</h1>
-# </div>
-# """, unsafe_allow_html=True)
 
 ################################################################################
 ###  讀取資料 ###
 @st.cache_data
-def load_data(): #讀取資料
+def load_data(): #- 讀取資料
+    #- 正式版：直接串接資料庫，讀取資料
     # df = select_data(st.session_state.db_connection, 
     #                      r".\folder\縣市(季).sql")
     # df2 = select_data(st.session_state.db_connection,
     #                   r".\folder\saledays_quarter.sql")
+    #- 測試版：讀取csv檔案
     df = pd.read_csv(r'./data/縣市(季).csv', encoding='utf-8')
     df2 = pd.read_csv(r'./data/saledays_quarter.csv', encoding='utf-8')
     return df, df2
@@ -91,8 +62,6 @@ def main():
         # cityList.remove(None)
         city = b1.selectbox('縣市',cityList)
         
-        
-
         data2 = st.session_state.data2[st.session_state.data2['縣市']==city]
         data2 = data2.sort_values(by='增加率(%)',ascending=False).reset_index(drop=True)
 
@@ -104,8 +73,10 @@ def main():
         data_ = data[data['縣市']==city]
 
         if btn.button('生成評析', width='stretch'):
+            
             st.sidebar.caption("以下分析結果來源:LibreChat")
-            f = open(f".\\prompt_and_responses\\responses_{city}.txt", "r+")
+            st.sidebar.info("該評析並無串接GAI任何模型，僅為LibreChat的回覆結果，數據並無即時更新，評析內容僅供參考。")
+            f = open(rf"{os.getcwd()}/prompt_and_responses/responses_{city}.txt", "r+")
             st.sidebar.write_stream(stream_generator(f.read(), cps = 800))  # cps:打字速度。數值越高，速度越快
         
         csv = convert_for_download(st.session_state.data)
@@ -210,11 +181,9 @@ try:
             st.session_state.login_status = False
             st.session_state.show_form = True
             st.session_state.data_loaded_2 = False
-            st.session_state.data_loaded_3 = False
             st.session_state.data_loaded_6 = False
             st.session_state.data_dist = None
             st.session_state.data, st.session_state.data2 = None, None
-            st.session_state.data_2, st.session_state.saleday_2  = None, None
             time.sleep(2)
             st.switch_page("main.py")
 

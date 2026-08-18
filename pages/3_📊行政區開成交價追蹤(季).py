@@ -5,7 +5,8 @@ from datetime import datetime,timedelta
 today = datetime.now()
 from folder.SQL_query import *
 from folder.visualization import *
-import openai
+import os
+from groq import Groq
 
 from pathlib import Path
 
@@ -17,8 +18,8 @@ def read_template(path: str, encoding: str = "utf-8") -> str:
 
 st.logo(r'https://bank.sinopac.com/sinopacbt/webevents/2005_life/images/logo@3x.png', size='large')
 # API 設定
-openai.api_key = "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"  # 替換成您的 API Key
-openai.api_base = "https://api.groq.com/openai/v1"
+api_key = st.sidebar.text_input("請輸入你的Groq API Key", type="password", key="api_key_input")
+st.sidebar.info("提醒：若無API Key，請先前往Groq官網申請\n https://console.groq.com/keys", icon="⚠️")
 
 st.set_page_config(
     page_title="永豐銀行-鑑估中心儀表板",
@@ -36,8 +37,10 @@ plt.rcParams['axes.unicode_minus'] = False
 @st.cache_data
 
 def load_data(): #- 讀取資料
+    #- 正式版：直接串接資料庫，讀取資料
     # df = select_data(st.session_state.db_connection, 
     #                  r".\folder\鄉鎮市區(季).sql")
+    #- 測試版：讀取csv檔案
     df = pd.read_csv(r'./data/鄉鎮市區(季).csv', encoding='utf-8')
     return df
 
@@ -45,28 +48,37 @@ def load_data(): #- 讀取資料
 def convert_for_download(df):
     return df.to_csv(index=False).encode("utf-8-sig")
 
-def load_response(data, city, dist, type, endYQ): #- 獲取AI生成的結論
+def load_response(data, city, dist, type, endYQ, api_key): #- 獲取AI生成的結論
     ### 模型設定 ###
-    model = "meta-llama/llama-4-scout-17b-16e-instruct" 
+    client = Groq(api_key=api_key)  # 初始化 Groq 客戶端
+    model = "openai/gpt-oss-20b"
 
     ### 讀取prompt_and_responses中的system_prompt.txt ###
-    system_prompt = template = read_template(r".\\prompt_and_responses\\system_prompt.txt").format(**{"endYQ":endYQ}) #讀取prompt_and_responses中的system_prompt.txt
+    system_prompt  = read_template(rf"{os.getcwd()}/prompt_and_responses/system_prompt.txt").format(**{"endYQ":endYQ}) #讀取prompt_and_responses中的system_prompt.txt
     
     ### User_prompt ###
     final_prompt = f"""根據下列表格回答問題：{data}。請針對表格內的資訊對{city}{dist}中{type}進行資料分析"""
-    
+
     try:
         # 呼叫生成式AI API
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": final_prompt},
-            ]
+            ],
+            temperature=1,
+            max_completion_tokens=2048,
+            top_p=1,
+            reasoning_effort="medium",
+            stream=True,
+            stop=None
         )
 
         # 取得AI回答
-        answer = response.choices[0].message.content
+        answer = ""
+        for chunk in response:
+            answer += chunk.choices[0].delta.content or ""  
         return answer
         
     except Exception as e: #! 執行錯誤，回報錯誤
@@ -126,7 +138,7 @@ def main():
         #- 如果按下"生成評析"，就會產生AI評析結論:打字機動畫。
         if btn:
             st.sidebar.caption("以下分析結果來源:Groq")
-            st.sidebar.write_stream(stream_generator(load_response(data2.to_dict(), city, dist, type, endYQ), cps = 500)) # cps:打字速度。數值越高，速度越快
+            st.sidebar.write_stream(stream_generator(load_response(data2.to_dict(), city, dist, type, endYQ, api_key), cps = 500)) # cps:打字速度。數值越高，速度越快
             # st.sidebar.markdown()     
 
         #- 呈現資料表
@@ -183,12 +195,9 @@ try:
             st.toast("登出成功")
             st.session_state.login_status = False
             st.session_state.show_form = True
-            st.session_state.data_loaded_2 = False
-            st.session_state.data_loaded_3 = False
             st.session_state.data_loaded_6 = False
             st.session_state.data_dist = None
             st.session_state.data, st.session_state.data2 = None, None
-            st.session_state.data_2, st.session_state.saleday_2  = None, None
             time.sleep(2)
             st.switch_page("main.py")
 

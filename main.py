@@ -86,11 +86,12 @@ if st.session_state.login_status == False:
     user = st.text_input("Username:", value="104901")
     password = st.text_input("Password:", type="password", value="Aa@20260102")
     login = st.button("Enter :gear:")
+    st.warning("此版本為測試版本，數據並不會即時更新，僅供測試使用。")
 
     if login:
         if server and database and user and password:
             try:
-                # 模擬成功連線（替換成實際的 SQL Server 驗證邏輯）
+                # 模擬成功連線（正式版將會替換成實際的 SQL Server 驗證邏輯）
                 # conn = pymssql.connect(
                 #     server=f'{server}',
                 #     user=f'{user}',
