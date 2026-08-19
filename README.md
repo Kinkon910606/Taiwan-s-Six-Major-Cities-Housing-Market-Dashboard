@@ -2,7 +2,7 @@
 
 本專案為臺灣六大城市（通常指六都）房市儀表板，用以整合與視覺化各類房市指標，協助使用者快速掌握各城市住宅價格、交易量與區域比較。
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://inventory-tracker-template.streamlit.app/)
+[![Open in Streamlit]([https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://inventory-tracker-template.streamlit.app/](https://taiwan-s-six-major-cities-housing-market-dashboard-dgrgjjc7eqd.streamlit.app/)
 
 
 主要功能摘要：
