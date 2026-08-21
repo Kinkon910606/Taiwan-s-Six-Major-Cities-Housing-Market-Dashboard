@@ -83,8 +83,8 @@ if st.session_state.login_status == False:
 
     server = st.text_input("server:", value="10.11.144.102")
     database = st.text_input("Database Name:", value="DB_DIGITECH")
-    user = st.text_input("Username:", value="104901")
-    password = st.text_input("Password:", type="password", value="Aa@20260102")
+    user = st.text_input("Username:", value="test")
+    password = st.text_input("Password:", type="password", value="test")
     login = st.button("Enter :gear:")
     st.warning("此版本為測試版本，數據並不會即時更新，僅供測試使用。")
 
